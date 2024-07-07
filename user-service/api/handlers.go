@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"user-service/database"
+	"user-service/messaging"
 	m "user-service/model"
 )
 
@@ -50,6 +51,12 @@ func (cfg *Config) createUser(w http.ResponseWriter, r *http.Request) {
 
 		writeError(w, http.StatusInternalServerError, err)
 		return
+
+	}
+
+	// create in kafka
+	err = messaging.PublishJSON("user-created", resp, "localhost:9092")
+	if err != nil {
 
 	}
 

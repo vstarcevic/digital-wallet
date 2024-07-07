@@ -1,5 +1,4 @@
-version: '3'
-
+ 
 services:
   postgres:
     image: 'postgres:16.2'
@@ -44,4 +43,3 @@ services:
     ports:
       - "9092:9092"
       - "9093:9093"
- 

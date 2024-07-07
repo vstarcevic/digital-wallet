@@ -7,6 +7,7 @@ import (
 	"os"
 	"user-service/api"
 	"user-service/database"
+	"user-service/messaging"
 )
 
 func main() {
@@ -22,6 +23,9 @@ func main() {
 	// run all migrations
 	database.RunMigrations(dsn)
 	defer dbConn.Close()
+
+	// create topic in Kafka
+	messaging.CreateTopicsIfNotExists()
 
 	cfg := api.Config{
 		Db: dbConn,
