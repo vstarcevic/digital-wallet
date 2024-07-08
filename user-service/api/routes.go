@@ -22,13 +22,7 @@ func Routes(cfg *Config) http.Handler {
 	}))
 
 	router.Use(middleware.Heartbeat("/health"))
-
-	router.Get("/time", cfg.getTime)
 	router.Post("/user", cfg.createUser)
-
-	router.Route("/", func(r chi.Router) {
-		r.Handle("/", http.RedirectHandler("/new/", http.StatusPermanentRedirect))
-	})
 
 	return router
 }

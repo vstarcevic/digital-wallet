@@ -2,32 +2,13 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
-	"time"
 
 	"user-service/database"
 	"user-service/messaging"
 	m "user-service/model"
 )
-
-func (cfg *Config) getTime(w http.ResponseWriter, r *http.Request) {
-
-	time, err := json.Marshal(time.Now())
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err)
-	}
-
-	resp := m.JsonResponse{
-		Error:   false,
-		Message: "",
-		Data:    string(time),
-	}
-
-	writeJSON(w, http.StatusOK, resp)
-
-}
 
 func (cfg *Config) createUser(w http.ResponseWriter, r *http.Request) {
 
