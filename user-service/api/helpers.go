@@ -58,5 +58,4 @@ func writeError(w http.ResponseWriter, statusCode int, err error) error {
 	payload.Message = err.Error()
 
 	return writeJSON(w, statusCode, payload)
-
 }

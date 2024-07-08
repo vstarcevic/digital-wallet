@@ -24,13 +24,15 @@ func (cfg *Config) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cfg.Tx, err = cfg.Db.BeginTx(context.Background(), nil)
+	ctx := context.Background()
+
+	cfg.Tx, err = cfg.Db.BeginTx(ctx, nil)
 	defer cfg.Tx.Rollback()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 	}
 
-	resp, err := database.CreateUserWithTx(context.Background(), cfg.Tx, cfg.Db, requestPayload.Email)
+	resp, err := database.CreateUserWithTx(ctx, cfg.Tx, cfg.Db, requestPayload.Email)
 	if err != nil {
 		if errors.Is(err, database.ErrDuplicate) {
 			writeError(w, http.StatusUnprocessableEntity, err)
