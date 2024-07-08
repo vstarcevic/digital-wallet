@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -42,7 +43,13 @@ func (cfg *Config) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := database.CreateUser(cfg.Db, requestPayload.Email)
+	cfg.Tx, err = cfg.Db.BeginTx(context.Background(), nil)
+	defer cfg.Tx.Rollback()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+	}
+
+	resp, err := database.CreateUserWithTx(context.Background(), cfg.Tx, cfg.Db, requestPayload.Email)
 	if err != nil {
 		if errors.Is(err, database.ErrDuplicate) {
 			writeError(w, http.StatusUnprocessableEntity, err)
@@ -51,13 +58,15 @@ func (cfg *Config) createUser(w http.ResponseWriter, r *http.Request) {
 
 		writeError(w, http.StatusInternalServerError, err)
 		return
-
 	}
 
 	// create in kafka
 	err = messaging.PublishJSON("user-created", resp, "localhost:9092")
 	if err != nil {
-
+		writeError(w, http.StatusInternalServerError, err)
+		return
+	} else {
+		cfg.Tx.Commit()
 	}
 
 	writeJSON(w, http.StatusOK, resp)

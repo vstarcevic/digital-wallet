@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 
@@ -9,7 +10,7 @@ import (
 
 var ErrDuplicate = errors.New("user already exists")
 
-func CreateUser(conn *sql.DB, email string) (*m.UserResponse, error) {
+func CreateUserWithTx(ctx context.Context, tx *sql.Tx, conn *sql.DB, email string) (*m.UserResponse, error) {
 
 	var user m.UserResponse
 	var existingUser string
@@ -24,7 +25,10 @@ func CreateUser(conn *sql.DB, email string) (*m.UserResponse, error) {
 
 	query := `INSERT INTO "user" (email) VALUES ($1) returning id, email, created_at;`
 
-	_ = conn.QueryRow(query, email).Scan(&user.UserId, &user.Email, &user.CreatedAt)
+	err := tx.QueryRow(query, email).Scan(&user.UserId, &user.Email, &user.CreatedAt)
+	if err != nil {
+		return nil, errors.New("database error")
+	}
 
 	return &user, nil
 }
