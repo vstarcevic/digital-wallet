@@ -5,16 +5,16 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"user-service/api"
-	"user-service/database"
-	"user-service/messaging"
+	"transaction-service/api"
+	"transaction-service/database"
+	"transaction-service/messaging"
 )
 
 func main() {
-	dsn := os.Getenv("DSN_USER_DB")
+	dsn := os.Getenv("DSN_BALANCE_DB")
 
 	if dsn == "" {
-		dsn = "postgres://postgres:password@localhost:5432/userdb?sslmode=disable"
+		dsn = "postgres://postgres:password@localhost:5433/balancedb?sslmode=disable"
 	}
 
 	// connect and open db
@@ -33,8 +33,10 @@ func main() {
 		Db: dbConn,
 	}
 
+	go messaging.ListenTopic("user-created", cfg.Db)
+
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", "9000"),
+		Addr:    fmt.Sprintf(":%s", "9001"),
 		Handler: api.Routes(&cfg),
 	}
 
