@@ -12,9 +12,14 @@ import (
 
 func main() {
 	dsn := os.Getenv("DSN_USER_DB")
+	natsUrl := os.Getenv("NATS_URL")
 
 	if dsn == "" {
 		dsn = "postgres://postgres:password@localhost:5432/userdb?sslmode=disable"
+	}
+
+	if natsUrl == "" {
+		natsUrl = "localhost:4222"
 	}
 
 	// connect and open db
@@ -29,8 +34,13 @@ func main() {
 	// we would be creating manually all topics needed.
 	messaging.CreateTopicsIfNotExists()
 
+	// connect to nats
+	natsConn := messaging.ConnectToNats(natsUrl)
+	defer natsConn.Close()
+
 	cfg := api.Config{
-		Db: dbConn,
+		Db:  dbConn,
+		Nts: natsConn,
 	}
 
 	srv := &http.Server{

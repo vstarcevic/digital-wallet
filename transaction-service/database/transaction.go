@@ -32,3 +32,13 @@ func InsertBalance(conn *sql.DB, user m.User) error {
 
 	return nil
 }
+
+func GetBalance(conn *sql.DB, userId int) string {
+
+	var balance string
+
+	queryExists := `select CAST(balance AS varchar) from balance where userid = $1`
+	_ = conn.QueryRow(queryExists, userId).Scan(&balance)
+
+	return balance
+}

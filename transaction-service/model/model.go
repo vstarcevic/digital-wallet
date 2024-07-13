@@ -19,3 +19,9 @@ type JsonResponse struct {
 type JsonRequest struct {
 	Email string `json:"email"`
 }
+
+type UserBalanceResponse struct {
+	UserId  *int    `json:"user-id"`
+	Balance string  `json:"balance"`
+	Error   *string `json:"error"`
+}

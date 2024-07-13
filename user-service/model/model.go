@@ -19,3 +19,10 @@ type JsonResponse struct {
 type JsonRequest struct {
 	Email string `json:"email"`
 }
+
+type UserBalanceResponse struct {
+	UserId  int    `json:"-"`
+	Balance string `json:"balance"`
+	Email   string `json:"email"`
+	Error   string `json:"error"`
+}

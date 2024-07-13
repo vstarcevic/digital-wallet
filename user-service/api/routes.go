@@ -23,6 +23,7 @@ func Routes(cfg *Config) http.Handler {
 
 	router.Use(middleware.Heartbeat("/health"))
 	router.Post("/user", cfg.createUser)
+	router.Post("/balance", cfg.balance)
 
 	return router
 }

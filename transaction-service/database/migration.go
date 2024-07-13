@@ -18,6 +18,6 @@ func RunMigrations(dsn string) {
 		log.Fatal(err)
 	}
 	if err := m.Up(); err != nil {
-		slog.Warn("Migration", "Error:", err)
+		slog.Warn("Migration", ":", err)
 	}
 }
