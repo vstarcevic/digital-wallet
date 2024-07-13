@@ -30,13 +30,13 @@ func (cfg *Config) createUser(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	cfg.Tx, err = cfg.Db.BeginTx(ctx, nil)
-	defer cfg.Tx.Rollback()
+	tx, err := cfg.Db.BeginTx(ctx, nil)
+	defer tx.Rollback()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 	}
 
-	resp, err := database.CreateUserWithTx(ctx, cfg.Tx, cfg.Db, requestPayload.Email)
+	resp, err := database.CreateUserWithTx(ctx, tx, cfg.Db, requestPayload.Email)
 	if err != nil {
 		if errors.Is(err, database.ErrDuplicate) {
 			writeError(w, http.StatusUnprocessableEntity, err)
@@ -53,7 +53,7 @@ func (cfg *Config) createUser(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, err)
 		return
 	} else {
-		cfg.Tx.Commit()
+		tx.Commit()
 	}
 
 	writeJSON(w, http.StatusOK, resp)

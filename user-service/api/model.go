@@ -8,6 +8,5 @@ import (
 
 type Config struct {
 	Db  *sql.DB
-	Tx  *sql.Tx
 	Nts *nats.Conn
 }

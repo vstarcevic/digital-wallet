@@ -10,3 +10,5 @@ CREATE TABLE "transaction" (
     amount DECIMAL(14,2) NOT NULL,
     created_at TIMESTAMP default (now() at time zone 'utc')
     );
+
+CREATE INDEX IF NOT EXISTS idx_user ON "transaction" (userId);
