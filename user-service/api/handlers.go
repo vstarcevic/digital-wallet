@@ -86,6 +86,7 @@ func (cfg *Config) balance(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("%v for request", err)
 		writeError(w, http.StatusInternalServerError, errors.New("error trying to get balance"))
+		return
 	}
 
 	log.Printf("Published [%s] : '%s'", "balance", requestPayload.Email)

@@ -50,12 +50,23 @@ func SubscribeNats(cfg api.Config) {
 
 func getBalance(nc *nats.Conn, m *nats.Msg, db *sql.DB) (*int, error) {
 
+	var errorText string
+
 	userId, err := strconv.Atoi(string(m.Data))
 	if err != nil {
-		return nil, err
+		errorText = "internal error"
 	}
 
 	balance, err := database.GetBalance(db, userId)
+	if err != nil {
+		errorText = "user not found"
+	}
+
+	if errorText != "" {
+		out, _ := json.Marshal(model.UserBalanceResponse{Error: &errorText})
+		nc.Publish(m.Reply, out)
+		return nil, err
+	}
 
 	userResponse := model.UserBalanceResponse{
 		UserId:  &userId,
@@ -63,10 +74,7 @@ func getBalance(nc *nats.Conn, m *nats.Msg, db *sql.DB) (*int, error) {
 		Error:   nil,
 	}
 
-	out, err := json.Marshal(userResponse)
-	if err != nil {
-		return nil, err
-	}
+	out, _ := json.Marshal(userResponse)
 
 	nc.Publish(m.Reply, out)
 

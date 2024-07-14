@@ -24,5 +24,5 @@ type UserBalanceResponse struct {
 	UserId  int    `json:"-"`
 	Balance string `json:"balance"`
 	Email   string `json:"email"`
-	Error   string `json:"error"`
+	Error   string `json:"error,omitempty"`
 }
