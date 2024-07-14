@@ -38,7 +38,7 @@ type AddMoneyResponse struct {
 }
 
 type TransferMoneyRequest struct {
-	FromUserId int    `json:"from_user_id"`
-	ToUserId   int    `json:"to_user_id"`
-	Amount     string `json:"amount_to_transfer"`
+	FromUserId int             `json:"from_user_id"`
+	ToUserId   int             `json:"to_user_id"`
+	Amount     decimal.Decimal `json:"amount_to_transfer"`
 }

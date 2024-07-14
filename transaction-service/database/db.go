@@ -11,6 +11,7 @@ import (
 )
 
 var ErrDuplicate = errors.New("user balance already exists")
+var ErrDBalanceNegative = errors.New("user balance cannot be negative")
 
 func InsertBalance(conn *sql.DB, user m.User) error {
 
@@ -55,7 +56,7 @@ func TryUpdateBalanceWLock(tx *sql.Tx, userId int, amount decimal.Decimal) (*dec
 	tx.QueryRow(queryBalanceWLock, userId).Scan(&currentBalance)
 
 	if currentBalance.Add(amount).LessThan(decimal.NewFromInt(0)) {
-		return nil, errors.New("balance cannot be negative")
+		return nil, ErrDBalanceNegative
 	}
 
 	newAmount := currentBalance.Add(amount)
