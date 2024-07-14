@@ -88,7 +88,7 @@ func (cfg *Config) transferMoney(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, req := range transfer {
-		_, err := updateBalance(tx, cfg.Db, req.UserId, requestPayload.Amount)
+		_, err := updateBalance(tx, cfg.Db, req.UserId, req.Amount)
 		if err != nil {
 			if errors.Is(err, ErrClientUser) || errors.Is(err, ErrClientAmount) || errors.Is(err, database.ErrDBalanceNegative) {
 				writeError(w, http.StatusBadRequest, err)
