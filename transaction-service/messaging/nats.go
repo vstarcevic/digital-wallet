@@ -55,11 +55,11 @@ func getBalance(nc *nats.Conn, m *nats.Msg, db *sql.DB) (*int, error) {
 		return nil, err
 	}
 
-	balance := database.GetBalance(db, userId)
+	balance, err := database.GetBalance(db, userId)
 
 	userResponse := model.UserBalanceResponse{
 		UserId:  &userId,
-		Balance: balance,
+		Balance: *balance,
 		Error:   nil,
 	}
 

@@ -35,14 +35,17 @@ func InsertBalance(conn *sql.DB, user m.User) error {
 	return nil
 }
 
-func GetBalance(conn *sql.DB, userId int) string {
+func GetBalance(conn *sql.DB, userId int) (*decimal.Decimal, error) {
 
-	var balance string
+	var balance decimal.Decimal
 
-	queryExists := `select CAST(balance AS varchar) from balance where userid = $1`
-	_ = conn.QueryRow(queryExists, userId).Scan(&balance)
+	queryExists := `select balance from balance where userid = $1`
+	err := conn.QueryRow(queryExists, userId).Scan(&balance)
+	if err != nil {
+		return nil, err
+	}
 
-	return balance
+	return &balance, nil
 }
 
 func TryUpdateBalanceWLock(tx *sql.Tx, userId int, amount decimal.Decimal) (*decimal.Decimal, error) {

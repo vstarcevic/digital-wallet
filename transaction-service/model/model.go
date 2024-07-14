@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type User struct {
@@ -21,18 +23,18 @@ type JsonRequest struct {
 }
 
 type UserBalanceResponse struct {
-	UserId  *int    `json:"user_id"`
-	Balance string  `json:"balance"`
-	Error   *string `json:"error"`
+	UserId  *int            `json:"user_id"`
+	Balance decimal.Decimal `json:"balance"`
+	Error   *string         `json:"error"`
 }
 
 type AddMoneyRequest struct {
-	UserId int    `json:"user_id"`
-	Amount string `json:"amount"`
+	UserId int             `json:"user_id"`
+	Amount decimal.Decimal `json:"amount"`
 }
 
 type AddMoneyResponse struct {
-	UpdatedBalance string `json:"updated_balance"`
+	UpdatedBalance decimal.Decimal `json:"updated_balance"`
 }
 
 type TransferMoneyRequest struct {

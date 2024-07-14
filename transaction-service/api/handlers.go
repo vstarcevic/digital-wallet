@@ -2,14 +2,11 @@ package api
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"net/http"
 	"transaction-service/database"
 	"transaction-service/model"
 	m "transaction-service/model"
-
-	"github.com/shopspring/decimal"
 )
 
 var UserErrorNotExists = errors.New("user already exists")
@@ -25,11 +22,7 @@ func (cfg *Config) addMoney(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// is amount ok
-	amount, err := decimal.NewFromString(requestPayload.Amount)
-	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("amount is not in good format"))
-		return
-	}
+	amount := requestPayload.Amount
 
 	// we want max two decimals
 	if amount != amount.Truncate(2) {
@@ -38,8 +31,8 @@ func (cfg *Config) addMoney(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// does user exists
-	balance := database.GetBalance(cfg.Db, requestPayload.UserId)
-	if balance == "" {
+	_, err = database.GetBalance(cfg.Db, requestPayload.UserId)
+	if err != nil {
 		writeError(w, http.StatusBadRequest, errors.New("user not found"))
 		return
 	}
@@ -66,7 +59,7 @@ func (cfg *Config) addMoney(w http.ResponseWriter, r *http.Request) {
 	}
 
 	addMoneyResponse := model.AddMoneyResponse{
-		UpdatedBalance: newAmount.String(),
+		UpdatedBalance: *newAmount,
 	}
 	tx.Commit()
 
@@ -75,8 +68,4 @@ func (cfg *Config) addMoney(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *Config) transferMoney(w http.ResponseWriter, r *http.Request) {
-}
-
-func updateBalanceAddTransaction(tx *sql.Tx, userId int, amount decimal.Decimal) (decimal.Decimal, error) {
-
 }
