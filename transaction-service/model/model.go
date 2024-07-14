@@ -42,3 +42,5 @@ type TransferMoneyRequest struct {
 	ToUserId   int             `json:"to_user_id"`
 	Amount     decimal.Decimal `json:"amount_to_transfer"`
 }
+
+type TransferMoneyResponse struct{}

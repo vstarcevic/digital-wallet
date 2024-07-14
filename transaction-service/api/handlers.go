@@ -65,7 +65,19 @@ func (cfg *Config) transferMoney(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// update balance, add transaction record, under db transaction
+	// transfer money same as add money, it's just for multiple users instead of one
+	transfer := []model.AddMoneyRequest{
+		{
+			UserId: requestPayload.FromUserId,
+			Amount: requestPayload.Amount.Neg(),
+		},
+		{
+			UserId: requestPayload.ToUserId,
+			Amount: requestPayload.Amount,
+		},
+	}
+
+	// update balances, add transaction records, under db transaction
 	// making sure balance is locked
 	ctx := context.Background()
 	tx, err := cfg.Db.BeginTx(ctx, nil)
@@ -75,23 +87,23 @@ func (cfg *Config) transferMoney(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newBalance, err := updateBalance(tx, cfg.Db, requestPayload.UserId, requestPayload.Amount)
-	if err != nil {
-		if errors.Is(err, ErrClientUser) || errors.Is(err, ErrClientAmount) || errors.Is(err, database.ErrDBalanceNegative) {
-			writeError(w, http.StatusBadRequest, err)
+	for _, req := range transfer {
+		_, err := updateBalance(tx, cfg.Db, req.UserId, requestPayload.Amount)
+		if err != nil {
+			if errors.Is(err, ErrClientUser) || errors.Is(err, ErrClientAmount) || errors.Is(err, database.ErrDBalanceNegative) {
+				writeError(w, http.StatusBadRequest, err)
+				return
+			}
+
+			writeError(w, http.StatusInternalServerError, err)
 			return
 		}
-
-		writeError(w, http.StatusInternalServerError, err)
-		return
 	}
 	tx.Commit()
 
-	addMoneyResponse := model.AddMoneyResponse{
-		UpdatedBalance: *newBalance,
-	}
+	transferMoneyResponse := model.TransferMoneyResponse{}
 
-	writeJSON(w, http.StatusOK, addMoneyResponse)
+	writeJSON(w, http.StatusOK, transferMoneyResponse)
 }
 
 // Updates balance, insert transaction and returns
