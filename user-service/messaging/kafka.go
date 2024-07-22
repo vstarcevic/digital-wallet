@@ -12,10 +12,10 @@ type SaramaProducer struct {
 	producer *sarama.SyncProducer
 }
 
-func CreateTopicsIfNotExists() {
+func CreateTopicsIfNotExists(kafkaUrl string) {
 
 	// create topics
-	brokerAddrs := []string{"localhost:9092"}
+	brokerAddrs := []string{kafkaUrl}
 	config := sarama.NewConfig()
 
 	consumer, err := sarama.NewConsumer(brokerAddrs, config)
@@ -49,7 +49,10 @@ func CreateTopicsIfNotExists() {
 		}, false)
 		if err != nil {
 			log.Fatal("Error while creating topic: ", err.Error())
+		} else {
+			log.Printf("Created topic successfuly")
 		}
+
 	}
 }
 

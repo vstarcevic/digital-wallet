@@ -11,15 +11,31 @@ import (
 )
 
 func main() {
-	dsn := os.Getenv("DSN_USER_DB")
-	natsUrl := os.Getenv("NATS_URL")
+	postgresAddr := os.Getenv("POSTGRES_ADDR")
+	postgresUser := os.Getenv("POSTGRES_USER")
+	postgresPass := os.Getenv("POSTGRES_PASSWORD")
+	postgresDb := os.Getenv("POSTGRES_DB")
+	postgresPort := os.Getenv("POSTGRES_PORT")
 
-	if dsn == "" {
+	natsAddr := os.Getenv("NATS_URL")
+	natsPort := os.Getenv("NATS_PORT")
+
+	kafkaAddr := os.Getenv("KAFKA_URL")
+	kafkaPort := os.Getenv("KAFKA_PORT")
+
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", postgresUser, postgresPass, postgresAddr, postgresPort, postgresDb)
+	if postgresAddr == "" {
 		dsn = "postgres://postgres:password@localhost:5432/userdb?sslmode=disable"
 	}
 
-	if natsUrl == "" {
+	natsUrl := fmt.Sprintf("%s:%s", natsAddr, natsPort)
+	if natsAddr == "" {
 		natsUrl = "localhost:4222"
+	}
+
+	kafkaUrl := fmt.Sprintf("%s:%s", kafkaAddr, kafkaPort)
+	if kafkaAddr == "" {
+		kafkaUrl = "localhost:9092"
 	}
 
 	// connect and open db
@@ -32,7 +48,7 @@ func main() {
 	// create topic in Kafka
 	// this would not be in production,
 	// we would be creating manually all topics needed.
-	messaging.CreateTopicsIfNotExists()
+	messaging.CreateTopicsIfNotExists(kafkaUrl)
 
 	// connect to nats
 	natsConn := messaging.ConnectToNats(natsUrl)
@@ -41,6 +57,11 @@ func main() {
 	cfg := api.Config{
 		Db:  dbConn,
 		Nts: natsConn,
+		App: api.AppSettings{
+			Dsn:      dsn,
+			KafkaUrl: kafkaUrl,
+			NatsUrl:  natsUrl,
+		},
 	}
 
 	srv := &http.Server{

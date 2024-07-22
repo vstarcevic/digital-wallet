@@ -1,6 +1,5 @@
- 
 services:
-  postgres:
+  postgres1:
     image: 'postgres:16.2'
     ports:
       - "5432:5432"
@@ -39,8 +38,15 @@ services:
         aliases:
           - postgres
   kafka:
-    image: 'apache/kafka:3.7.1'
-    ports:
+    image: 'bitnami/kafka:latest'
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    ports: 
       - "9092:9092"
       - "9093:9093"
   nats:
@@ -49,3 +55,22 @@ services:
       - "4222:4222"
       - "6222:6222"
       - "8222:8222"
+  user-service:
+    build:
+      dockerfile: ./user-service/user-service.dockerfile
+    environment:
+      POSTGRES_ADDR: postgres1
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: userdb
+      POSTGRES_PORT: 5432
+      NATS_URL: nats
+      NATS_PORT: 4222
+      KAFKA_URL: kafka
+      KAFKA_PORT: 9092
+    restart: always
+    ports: 
+      - "9000:9000"
+    deploy:
+      mode: replicated
+      replicas: 1

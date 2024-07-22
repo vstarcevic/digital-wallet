@@ -48,7 +48,7 @@ func (cfg *Config) createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create in kafka
-	err = messaging.PublishJSON("user-created", resp, "localhost:9092")
+	err = messaging.PublishJSON("user-created", resp, cfg.App.KafkaUrl)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 		return

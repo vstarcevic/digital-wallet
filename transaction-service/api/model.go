@@ -9,4 +9,11 @@ import (
 type Config struct {
 	Db  *sql.DB
 	Nts *nats.Conn
+	App AppSettings
+}
+
+type AppSettings struct {
+	Dsn      string
+	NatsUrl  string
+	KafkaUrl string
 }
