@@ -14,14 +14,14 @@ import (
 	"github.com/IBM/sarama"
 )
 
-var brokerAddrs = []string{"localhost:9092"}
+func CreateTopicsIfNotExists(kafkaUrl string) {
 
-func CreateTopicsIfNotExists() {
+	brokerAddress := []string{kafkaUrl}
 
 	// create topics
 	config := sarama.NewConfig()
 
-	consumer, err := sarama.NewConsumer(brokerAddrs, config)
+	consumer, err := sarama.NewConsumer(brokerAddress, config)
 	if err != nil {
 		panic(err)
 	}
@@ -39,7 +39,7 @@ func CreateTopicsIfNotExists() {
 
 	if !slices.Contains(topics, "user-created") {
 		config.Version = sarama.V3_6_0_0
-		admin, err := sarama.NewClusterAdmin(brokerAddrs, config)
+		admin, err := sarama.NewClusterAdmin(brokerAddress, config)
 		if err != nil {
 			log.Fatal("Error while creating cluster admin: ", err.Error())
 		}
@@ -56,10 +56,12 @@ func CreateTopicsIfNotExists() {
 	}
 }
 
-func ListenTopic(topics string, conn *sql.DB) {
+func ListenTopic(topics string, conn *sql.DB, kafkaUrl string) {
+
+	brokerAddress := []string{kafkaUrl}
 
 	config := sarama.NewConfig()
-	consumer, err := sarama.NewConsumer(brokerAddrs, config)
+	consumer, err := sarama.NewConsumer(brokerAddress, config)
 	if err != nil {
 		panic(err)
 	}

@@ -19,6 +19,7 @@ func ConnectToDB(dsn string) *sql.DB {
 		connection, err := openDB(dsn)
 
 		if err != nil {
+			slog.Warn(dsn)
 			slog.Warn("Postgres not yet ready ...")
 			counts++
 		} else {
