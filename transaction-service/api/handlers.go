@@ -6,7 +6,6 @@ import (
 	"errors"
 	"net/http"
 	"transaction-service/database"
-	"transaction-service/model"
 	m "transaction-service/model"
 
 	"github.com/shopspring/decimal"
@@ -48,7 +47,7 @@ func (cfg *Config) addMoney(w http.ResponseWriter, r *http.Request) {
 	}
 	tx.Commit()
 
-	addMoneyResponse := model.AddMoneyResponse{
+	addMoneyResponse := m.AddMoneyResponse{
 		UpdatedBalance: *newBalance,
 	}
 
@@ -66,7 +65,7 @@ func (cfg *Config) transferMoney(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// transfer money same as add money, it's just for multiple users instead of one
-	transfer := []model.AddMoneyRequest{
+	transfer := []m.AddMoneyRequest{
 		{
 			UserId: requestPayload.FromUserId,
 			Amount: requestPayload.Amount.Neg(),
@@ -101,7 +100,7 @@ func (cfg *Config) transferMoney(w http.ResponseWriter, r *http.Request) {
 	}
 	tx.Commit()
 
-	transferMoneyResponse := model.TransferMoneyResponse{}
+	transferMoneyResponse := m.TransferMoneyResponse{}
 
 	writeJSON(w, http.StatusOK, transferMoneyResponse)
 }
